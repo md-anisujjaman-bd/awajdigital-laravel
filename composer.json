@@ -1,0 +1,113 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "md-anisujjaman-bd/awajdigital-laravel",
+    "description": "Unofficial Laravel client for the AwajDigital Voice Broadcasting API. Not affiliated with or endorsed by AwajDigital.",
+    "type": "library",
+    "keywords": [
+        "laravel",
+        "md-anisujjaman-bd",
+        "awajdigital-laravel",
+        "awajdigital",
+        "voice",
+        "ivr",
+        "otp",
+        "bangladesh",
+        "api-client"
+    ],
+    "homepage": "https://github.com/md-anisujjaman-bd/awajdigital-laravel",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "md-anisujjaman-bd",
+            "email": "mdanisujjaman7@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "illuminate/http": "^12.0||^13.0",
+        "illuminate/support": "^12.0||^13.0"
+    },
+    "require-dev": {
+        "brianium/paratest": "^7.0||^8.0",
+        "larastan/larastan": "^2.9||^3.0",
+        "laravel/pint": "^1.29",
+        "nunomaduro/collision": "^8.1",
+        "orchestra/testbench": "^10.6||^11.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpunit/phpunit": "^11.5.3",
+        "rector/rector": "^1.2||^2.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "MdAnisujjamanBd\\AwajdigitalLaravel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MdAnisujjamanBd\\AwajdigitalLaravel\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "prepare": [
+            "@php vendor/bin/testbench package:discover --ansi"
+        ],
+        "phpstan": "vendor/bin/phpstan analyse -c ./tools/phpstan/phpstan.neon.dist --memory-limit 2G",
+        "analyse": [
+            "@phpstan"
+        ],
+        "style:fix": "vendor/bin/pint",
+        "style:check": "vendor/bin/pint --test",
+        "rector": "vendor/bin/rector -c ./tools/rector/config.php",
+        "rector:check": "@rector --dry-run",
+        "test": "vendor/bin/phpunit -c tests/phpunit.xml.dist --testdox --colors=always",
+        "test:parallel": "vendor/bin/paratest -c tests/phpunit.xml.dist",
+        "test:coverage": "@test:parallel --coverage-html ./build/coverage",
+        "test:coverage-ci": "@test:parallel --coverage-clover ./build/coverage.xml",
+        "switch": "composer update --with=illuminate/support:^$LARAVEL_VERSION",
+        "switch:l12": "LARAVEL_VERSION=12 composer run-script switch",
+        "switch:l13": "LARAVEL_VERSION=13 composer run-script switch",
+        "clear": [
+            "@php vendor/bin/testbench package:purge-skeleton --ansi"
+        ],
+        "build": [
+            "@php vendor/bin/testbench workbench:build --ansi"
+        ],
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve --ansi"
+        ],
+        "post-install-cmd": [
+            "npx agenteq init --yes --skip-in-ci"
+        ],
+        "post-update-cmd": [
+            "npx agenteq sync --yes --skip-in-ci"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MdAnisujjamanBd\\AwajdigitalLaravel\\AwajdigitalLaravelServiceProvider"
+            ],
+            "aliases": {
+                "AwajDigital": "MdAnisujjamanBd\\AwajdigitalLaravel\\Facades\\AwajDigital"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

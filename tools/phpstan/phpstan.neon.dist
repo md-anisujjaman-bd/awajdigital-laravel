@@ -1,0 +1,11 @@
+parameters:
+    level: 8
+    paths:
+        - ../../src
+        - ../../config
+    tmpDir: build/phpstan
+    ignoreErrors:
+        -
+            identifier: larastan.noEnvCallsOutsideOfConfig
+            paths:
+                - ../../config/*

@@ -1,0 +1,14 @@
+{
+  "agents": [
+    "claude_code",
+    "copilot",
+    "antigravity",
+    "cline"
+  ],
+  "capabilities": [
+    "mcp",
+    "commands",
+    "skills",
+    "guidelines"
+  ]
+}
