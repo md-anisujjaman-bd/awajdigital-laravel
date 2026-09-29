@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: read
 
 jobs:
   setup:
@@ -24,7 +25,7 @@ jobs:
           token: ${{ secrets.CI_TOKEN || github.token }}
 
       - id: compute_is_fork
-        run: echo "is_fork=${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}" >> "$GITHUB_OUTPUT"
+        run: echo "is_fork=${{ github.event_name == 'pull_request' && (github.event.pull_request.head.repo.full_name != github.repository || github.actor == 'dependabot[bot]' || github.event.pull_request.user.login == 'dependabot[bot]') }}" >> "$GITHUB_OUTPUT"
 
       - name: Check for changes
         id: filter
