@@ -9,33 +9,76 @@ metadata:
 
 # Awajdigital Laravel
 
-Use this skill when a Laravel application needs to integrate the Awajdigital Laravel package.
+Use this skill when integrating the `md-anisujjaman-bd/awajdigital-laravel` package into a Laravel application.
 
-## Primary Goal
+## Configuration
 
-- apply the `md-anisujjaman-bd/awajdigital-laravel` package's public API in the smallest correct way
+Set environment variables in `.env`:
 
-## Workflow
+```env
+AWAJDIGITAL_TOKEN=your_api_bearer_token
+AWAJDIGITAL_BASE_URL=https://api.awajdigital.com/api
+AWAJDIGITAL_SENDER=8801XXXXXXXXX
+AWAJDIGITAL_TIMEOUT=30
+```
 
-### 1. Inspect the Laravel app context
+Publish configuration if customization is needed:
+```bash
+php artisan vendor:publish --tag=awajdigital-config
+```
 
-- confirm the app is a Laravel project
-- inspect the target code paths where the package should be applied
+## Usage via Facade
 
-### 2. Apply the package's public API
+Import `MdAnisujjamanBd\AwajdigitalLaravel\Facades\AwajDigital`.
 
-Document how to integrate Awajdigital Laravel here, replacing this placeholder with the integration steps for your package.
+### 1. Check Account Balance
+```php
+use MdAnisujjamanBd\AwajdigitalLaravel\Facades\AwajDigital;
 
-## Rules, References, and Templates
+$balance = AwajDigital::checkBalance();
+// returns BalanceData: $balance->amount (float in BDT)
+```
 
-Read before executing:
+### 2. Send Voice OTP
+```php
+use MdAnisujjamanBd\AwajdigitalLaravel\Facades\AwajDigital;
+use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\SendOtpData;
 
-- no additional resource files for this skill
+$result = AwajDigital::sendOtp(new SendOtpData(
+    voice: 'otp_voice_v1',
+    phoneNumber: '01712345678',
+    otpCode: '4829',
+    sender: '8801712345678', // optional, defaults to config
+));
+// returns BroadcastResultData or id: $result->broadcastId
+```
 
-## Examples
+### 3. Send Bulk Broadcast
+```php
+use MdAnisujjamanBd\AwajdigitalLaravel\Facades\AwajDigital;
+use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\SendBulkBroadcastData;
 
-- describe a representative integration scenario for Awajdigital Laravel
+$broadcast = AwajDigital::sendBulkBroadcast(new SendBulkBroadcastData(
+    voice: 'campaign_announcement',
+    phoneNumbers: ['01712345678', '01812345678'],
+));
+```
 
-## Anti-patterns
+### 4. Create Template Survey
+```php
+use MdAnisujjamanBd\AwajdigitalLaravel\Facades\AwajDigital;
+use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Surveys\DataTransferObjects\CreateSurveyData;
 
-- do not document package internals here; keep the skill focused on adoption in Laravel apps
+$survey = AwajDigital::createSurvey(new CreateSurveyData(
+    templateName: 'customer_satisfaction_v1',
+    phoneNumbers: ['01712345678'],
+    webhookUrl: 'https://example.com/api/webhooks/survey',
+));
+```
+
+## Testing in Applications
+
+Use `AwajDigital::fake()` in PHPUnit/Pest tests to mock responses without making network calls:
+```php
+AwajDigital::fake();
+```

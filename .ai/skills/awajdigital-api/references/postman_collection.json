@@ -1,0 +1,844 @@
+{
+  "info": {
+    "name": "AwajDigital API",
+    "description": "AwajDigital Voice Broadcasting API — import this collection to test the API endpoints interactively. Set the {{apiToken}} collection variable to your API token before sending requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.awajdigital.com/api",
+      "type": "string"
+    },
+    {
+      "key": "apiToken",
+      "value": "your_api_token_here",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Account",
+      "description": "Account information endpoints",
+      "item": [
+        {
+          "name": "Check Balance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/balance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "balance"
+              ]
+            },
+            "description": "Retrieve the current account balance (in BDT) available for broadcasts and surveys."
+          }
+        }
+      ]
+    },
+    {
+      "name": "OTP Broadcast",
+      "description": "Send OTP (One-Time Password) voice messages to a single phone number",
+      "item": [
+        {
+          "name": "Send Voice OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"request_id\": \"generate_a_unique_id_16_chars_min\",\n    \"voice\": \"your_voice_name\",\n    \"sender\": \"8801234567890\",\n    \"phone_number\": \"019XXXXXXXX\",\n    \"otp_code\": \"1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts/otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts",
+                "otp"
+              ]
+            },
+            "description": "Send a voice OTP to a single phone number. The voice must have a dynamic digit part configured. Use a unique request_id (min 16 chars) to prevent duplicate requests."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Broadcast to Multiple Numbers",
+      "description": "Send voice messages to multiple phone numbers in a single API call",
+      "item": [
+        {
+          "name": "Send Bulk Broadcast",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"request_id\": \"generate_a_unique_id_16_chars_min\",\n    \"voice\": \"your_voice_name\",\n    \"sender\": \"8801234567890\",\n    \"phone_numbers\": [\"019XXXXXXXX\", \"018XXXXXXXX\", \"017XXXXXXXX\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts"
+              ]
+            },
+            "description": "Send voice messages to multiple phone numbers (max 999 numbers per request). Use a unique request_id to prevent duplicate requests."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dynamic Broadcast",
+      "description": "Send personalized voice messages using a dynamic voice with variable parts (name, amount, etc.) filled in per recipient",
+      "item": [
+        {
+          "name": "Send Dynamic Broadcast",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"request_id\": \"unique_dynamic_broadcast_001\",\n    \"voice\": \"due_reminder_dynamic\",\n    \"sender\": \"8801234567890\",\n    \"recipients\": [\n        {\n            \"phone_number\": \"019XXXXXXXX\",\n            \"data\": {\n                \"customer_name\": \"রহিম উদ্দিন\",\n                \"due_amount\": \"1250\"\n            }\n        },\n        {\n            \"phone_number\": \"018XXXXXXXX\",\n            \"data\": {\n                \"customer_name\": \"করিম শেখ\",\n                \"due_amount\": \"3400\"\n            }\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts/dynamic",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts",
+                "dynamic"
+              ]
+            },
+            "description": "Send a personalized broadcast using an approved dynamic voice with variable parts filled in per recipient. Processing is asynchronous."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Direct Broadcast",
+      "description": "Send a voice broadcast from CDN audio URLs without a pre-approved voice. Requires extra permission — contact support to enable this API.",
+      "item": [
+        {
+          "name": "Send Direct Broadcast",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"request_id\": \"generate_a_unique_id_16_chars_min\",\n    \"sender\": \"8801234567890\",\n    \"phone_numbers\": [\"019XXXXXXXX\", \"018XXXXXXXX\"],\n    \"voices\": [\"https://cdn.example.com/audio/announcement.wav\"],\n    \"metadata\": { \"campaign_id\": \"direct_broadcast_2026\" }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts/direct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts",
+                "direct"
+              ]
+            },
+            "description": "Send a broadcast from CDN audio URLs (WAV, 8000 Hz, mono, pcm_s16le). Requires extra permission — contact support to enable this API. voices is an array of 1-10 URLs played in sequence. Use a unique request_id (16-64 chars) to prevent duplicate requests within 15 minutes."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Direct TTS Broadcast",
+      "description": "Send a voice broadcast from plain text converted to speech with AI TTS. Requires both direct-broadcast and AI TTS permissions — contact support to enable them. Processing is asynchronous: poll the status endpoint with your request_id.",
+      "item": [
+        {
+          "name": "Send Direct TTS Broadcast",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"request_id\": \"generate_a_unique_id_16_chars_min\",\n    \"sender\": \"8801234567890\",\n    \"phone_numbers\": [\"019XXXXXXXX\", \"018XXXXXXXX\"],\n    \"texts\": [\"আসসালামু আলাইকুম। আগামীকাল আমাদের অফিস বন্ধ থাকবে।\"],\n    \"voice\": \"female\",\n    \"language_code\": \"bn-BD\",\n    \"metadata\": { \"campaign_id\": \"tts_broadcast_2026\" }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts/direct-tts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts",
+                "direct-tts"
+              ]
+            },
+            "description": "Send a broadcast from plain text (1-10 texts, max 5000 chars each) converted to speech. Rate limited to 1 request/second. Re-sending the same request_id returns 202 idempotently. Poll the status endpoint for the processing result."
+          }
+        },
+        {
+          "name": "Get Direct TTS Broadcast Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts/direct-tts/:requestId/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts",
+                "direct-tts",
+                ":requestId",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "requestId",
+                  "value": "generate_a_unique_id_16_chars_min",
+                  "description": "The request_id used when sending the direct TTS broadcast"
+                }
+              ]
+            },
+            "description": "Check the processing status of a direct TTS broadcast request. Status is pending, processing, completed (includes broadcast_id), or failed (includes error)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "List Broadcasts",
+      "description": "Get a list of broadcasts with optional date range filtering",
+      "item": [
+        {
+          "name": "Get Broadcasts List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts?start_date=2025-01-01&end_date=2025-01-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts"
+              ],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2025-01-01",
+                  "description": "Start date (ISO 8601 format). Optional. Defaults to 30 days ago."
+                },
+                {
+                  "key": "end_date",
+                  "value": "2025-01-31",
+                  "description": "End date (ISO 8601 format). Optional. Defaults to today."
+                }
+              ]
+            },
+            "description": "Get list of broadcasts. Without date params, returns last 30 days. Date range max 90 days."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Broadcast Results",
+      "description": "Get the status and results of a broadcast",
+      "item": [
+        {
+          "name": "Get Broadcast Result",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts/:id/result",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts",
+                ":id",
+                "result"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Broadcast ID"
+                }
+              ]
+            },
+            "description": "Get the status and results of a specific broadcast by ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Surveys",
+      "description": "Create voice survey campaigns and retrieve their results",
+      "item": [
+        {
+          "name": "Create Survey",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"request_id\": \"unique_survey_request_123\",\n    \"template_name\": \"customer_satisfaction_survey\",\n    \"sender\": \"8801234567890\",\n    \"phone_numbers\": [\"019XXXXXXXX\", \"018XXXXXXXX\", \"017XXXXXXXX\"],\n    \"metadata\": { \"campaign_id\": \"summer2025\", \"customer_segment\": \"premium\" },\n    \"webhook_url\": \"https://your-domain.com/webhook\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/surveys",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "surveys"
+              ]
+            },
+            "description": "Create and start a voice survey campaign using a published template. Use a unique request_id (16-64 chars) to prevent duplicate requests within 15 minutes. metadata and webhook_url are optional."
+          }
+        },
+        {
+          "name": "Create Direct Survey",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"request_id\": \"unique_direct_survey_123\",\n    \"sender\": \"8801234567890\",\n    \"phone_numbers\": [\"019XXXXXXXX\", \"018XXXXXXXX\"],\n    \"start_voices\": [{ \"type\": \"voice\", \"name\": \"welcome-intro\" }],\n    \"question_voices\": [{ \"type\": \"voice\", \"name\": \"delivery-question\" }],\n    \"invalid_voice\": { \"type\": \"voice\", \"name\": \"invalid-key\" },\n    \"end_voices\": [{ \"type\": \"voice\", \"name\": \"thank-you\" }],\n    \"dtmf_options\": [\n        { \"key\": \"1\", \"voices\": [{ \"type\": \"voice\", \"name\": \"order-confirmed\" }] },\n        {\n            \"key\": \"2\",\n            \"option_type\": \"transfer\",\n            \"transfer_numbers\": [\"017XXXXXXXX\"],\n            \"ringback_voice\": { \"type\": \"voice\", \"name\": \"please-wait\" },\n            \"all_busy_voice\": { \"type\": \"voice\", \"name\": \"agents-busy\" }\n        }\n    ],\n    \"metadata\": { \"campaign_id\": \"delivery_confirm_2026\" },\n    \"webhook_url\": \"https://your-domain.com/webhook\",\n    \"config\": { \"retry_count\": 1 }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/surveys/direct-order",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "surveys",
+                "direct-order"
+              ]
+            },
+            "description": "Start a survey without a template: send the question, keypad options (play voices or transfer), and optional start/end voices. Each voice entry is either an approved voice-library reference {\"type\": \"voice\", \"name\": \"...\"} (fully static; exactly one part in invalid_voice/ringback_voice/all_busy_voice) or a CDN audio URL (WAV, 8000 Hz, mono, pcm_s16le). Audio URLs require extra permission — contact support to enable it; library voices do not. Use a unique request_id (16-64 chars) to prevent duplicate requests within 15 minutes."
+          }
+        },
+        {
+          "name": "Get Survey Result",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/surveys/:id/result",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "surveys",
+                ":id",
+                "result"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "456",
+                  "description": "Survey ID returned from survey creation"
+                }
+              ]
+            },
+            "description": "Retrieve the results of a voice survey campaign — survey metadata, call status distribution, and per-number results including the keys pressed by recipients."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Resources",
+      "description": "Get available voices and senders for your account",
+      "item": [
+        {
+          "name": "Get Available Voices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/voices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "voices"
+              ]
+            },
+            "description": "Get list of approved voices available for your account"
+          }
+        },
+        {
+          "name": "Get Available Senders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/senders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "senders"
+              ]
+            },
+            "description": "Get list of active sender numbers available for your account"
+          }
+        },
+        {
+          "name": "Upload Voice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "my_voice_name",
+                  "type": "text"
+                },
+                {
+                  "key": "audio",
+                  "type": "file",
+                  "src": "/path/to/your/audio.mp3"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/voices/upload",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "voices",
+                "upload"
+              ]
+            },
+            "description": "Upload a new voice audio file. Voice is created with 'pending' status and requires admin approval before use in broadcasts. Supported formats: mp3, wav, ogg, m4a, aac, webm, flac. Max file size: 10MB."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "description": "Balance recharge payment and verification endpoints",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 500,\n    \"success_url\": \"https://shop.example.com/payment/success\",\n    \"cancel_url\": \"https://shop.example.com/payment/cancel\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "create"
+              ]
+            },
+            "description": "Create a balance-recharge payment for your account (min BDT 20). Returns a hosted payment URL to redirect the payer."
+          }
+        },
+        {
+          "name": "Get Payment Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/:invoice_id/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                ":invoice_id",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "invoice_id",
+                  "value": "9f8b7c6d-example",
+                  "description": "The invoice_id received when creating the payment or returned on the success redirect"
+                }
+              ]
+            },
+            "description": "Verify a payment server-to-server and get its real status. Triggers fulfillment if the payment completed."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Call Center",
+      "description": "Call-center agents, outgoing call history, and the browser call widget. Requires the call-center permission. Your server gets a token for one agent; the widget uses that token to connect. Revoke when the user logs out.",
+      "item": [
+        {
+          "name": "List Agents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cc/agents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cc",
+                "agents"
+              ]
+            },
+            "description": "Return every call-center agent on the account, including inactive and unapproved ones. Use id as agent_id when minting an SDK token. Rate limit: 60 requests per minute."
+          }
+        },
+        {
+          "name": "List Agent Calls",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cc/agents/42/calls?date=2026-09-07&page=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cc",
+                "agents",
+                "42",
+                "calls"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-09-07",
+                  "description": "Calendar day YYYY-MM-DD in Asia/Dhaka (call start, not hangup)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default 1). Size is always 100."
+                }
+              ]
+            },
+            "description": "Outgoing calls for one agent on a single Asia/Dhaka calendar day. Re-fetch the same agent_id and date to pick up status, duration, and recording after hangup billing. Rate limit: 60 requests per hour."
+          }
+        },
+        {
+          "name": "Mint SDK Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"agent_id\": 42\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sdk/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sdk",
+                "token"
+              ]
+            },
+            "description": "Create a single-use token for one of your call-center agents. Call this from your backend; never put your API token in the embed page. Requires the call-center permission."
+          }
+        },
+        {
+          "name": "Exchange Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "https://shop.example.com"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"token\": \"avt_paste_minted_token_here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sdk/session",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sdk",
+                "session"
+              ]
+            },
+            "description": "The widget calls this from the browser with the token from your backend. You do not need to call this yourself. Do not send your API Bearer token here. The page must be HTTPS on a hostname you have added under Profile → Call SDK. For http://localhost, turn on test mode there."
+          }
+        },
+        {
+          "name": "Revoke Session",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"agent_id\": 42\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sdk/session",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sdk",
+                "session"
+              ]
+            },
+            "description": "End an agent's embedded phone session. Call from your backend when a user logs out. Does not hang up an in-progress call."
+          }
+        }
+      ]
+    }
+  ]
+}

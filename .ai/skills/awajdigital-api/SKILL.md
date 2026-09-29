@@ -1,6 +1,6 @@
 ---
 name: awajdigital-api
-description: Use when adding, changing, testing, or documenting any AwajDigital API endpoint in this package (broadcasts, OTP, direct/TTS broadcasts, surveys, voices, senders, call center SDK). Contains the API contract, limits, and permission rules.
+description: Use when adding, changing, testing, or documenting any AwajDigital API endpoint in this package (broadcasts, OTP, dynamic broadcasts, direct/TTS broadcasts, surveys, voices, senders, payments, call center SDK). Contains the API contract, limits, and permission rules.
 ---
 
 # AwajDigital API skill
@@ -20,12 +20,14 @@ description: Use when adding, changing, testing, or documenting any AwajDigital 
 8. Run `composer test`, `composer analyse`, `composer style:check`.
 
 ## Key rules
-- `request_id` is the idempotency key: 16-64 chars, dedup window is 15 minutes. Auto-generate if not provided. Reuse the same value on retries.
-- Permission-gated endpoints (direct broadcast, direct TTS, audio URLs in direct survey, call center) can fail with a permission error even for valid tokens. Surface it as `PermissionDeniedException` with a helpful message ("contact AwajDigital support to enable this API").
-- Direct TTS is asynchronous: sending returns 202; poll the status endpoint (`pending`, `processing`, `completed` with `broadcast_id`, `failed` with `error`). Provide a polling helper with a max-attempts and interval.
+- Two error response shapes exist: `{success, message}` (broadcasts, surveys, voices, senders, payments) and `{error, code}` (call-center + all `/sdk/*` routes + `GET /cc/agents/{id}/calls`). The exception mapper must handle both shapes cleanly.
+- Endpoints covered include: Account, Broadcasts (OTP, Bulk, Dynamic, Direct, Direct TTS, Results), Voices, Senders, Surveys (Template, Direct, Webhook), Payments, and Call Center (Agents, Calls, SDK Token, Revoke Session).
+- `request_id` idempotency semantics differ by endpoint: some use `409` on reuse within 15 min (bulk/OTP, direct broadcast, direct survey), others use `202`-idempotent-replay with `500` on stored failure (dynamic broadcast, direct TTS). Inspect `references/endpoints.md` per endpoint.
+- Permission-gated endpoints (direct broadcast, direct TTS, dynamic broadcast with TTS, audio URLs in direct survey, payments, call center) can fail with a permission error even for valid tokens. Surface it as `PermissionDeniedException` with a helpful message.
+- Direct TTS and Dynamic Broadcast are asynchronous: dispatch returns 202. Direct TTS status is polled via `GET /broadcasts/direct-tts/{requestId}/status`; Dynamic broadcast creates individual broadcasts polled via `GET /broadcasts?request_id={id}` and `GET /broadcasts/{id}/result`.
 - Rate limits: direct TTS 1 req/sec; `GET /cc/agents` 60/min; `GET /cc/agents/{id}/calls` 60/hour. Respect them; never retry a 429 in a tight loop.
-- Call-center SDK: `POST /sdk/token` is backend-only. `POST /sdk/session` is called by the browser widget and does NOT use the Bearer token; this package should not wrap it unless explicitly asked.
-- Dates for call listing are calendar days in Asia/Dhaka (call start time).
+- Call-center SDK: `POST /sdk/token` and `DELETE /sdk/session` are backend-only. `POST /sdk/session` is called by the browser widget without Bearer token and is not wrapped as a server-side action.
+- Dates for call listing are calendar days in Asia/Dhaka (`YYYY-MM-DD`, call start time).
 - Audio for direct broadcasts: WAV, 8000 Hz, mono, pcm_s16le, served from a CDN URL.
 
 ## Never
