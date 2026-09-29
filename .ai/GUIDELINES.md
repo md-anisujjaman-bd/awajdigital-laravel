@@ -94,4 +94,3 @@ Never report a task as done without running tests, analyse and style:check.
 2. `composer analyse` and `composer style:check` are clean.
 3. `references/endpoints.md`, README and CHANGELOG are updated where relevant.
 4. No unresolved `TODO(verify)` without maintainer sign-off.
-
