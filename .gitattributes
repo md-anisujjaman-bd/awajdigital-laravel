@@ -14,5 +14,6 @@
 /.cursor export-ignore
 /.agent export-ignore
 /.agents export-ignore
+/.cline export-ignore
 /release-please-config.json export-ignore
 /.release-please-manifest.json export-ignore

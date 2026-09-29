@@ -22,3 +22,7 @@ CLAUDE.md
 AGENTS.md
 .clinerules
 .agents\mcp_config.json
+/.agents/
+/.claude/
+/.cline/
+/.ai/agenteq.json
