@@ -10,7 +10,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\CallCenter\DataTransferObjects\Ag
 final readonly class ListAgentsAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     /**
@@ -18,7 +18,7 @@ final readonly class ListAgentsAction
      */
     public function execute(): array
     {
-        $response = $this->client->request('GET', '/cc/agents');
+        $response = $this->awajDigitalClient->request('GET', '/cc/agents');
 
         /** @var array<string, mixed> $json */
         $json = (array) $response->json();
@@ -27,7 +27,7 @@ final readonly class ListAgentsAction
         $rawAgents = (array) ($json['data'] ?? []);
 
         return array_map(
-            fn (array $a) => AgentData::fromArray($a),
+            fn (array $a): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\CallCenter\DataTransferObjects\AgentData => AgentData::fromArray($a),
             $rawAgents
         );
     }

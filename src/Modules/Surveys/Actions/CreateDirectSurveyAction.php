@@ -11,7 +11,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Surveys\DataTransferObjects\Surve
 final readonly class CreateDirectSurveyAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
         private ?string $defaultSender = null,
     ) {}
 
@@ -20,7 +20,7 @@ final readonly class CreateDirectSurveyAction
         $payload = $data->toPayload($this->defaultSender);
 
         // Note: The direct survey endpoint lives under /v1/surveys/direct-order per API documentation
-        $response = $this->client->request('POST', '/v1/surveys/direct-order', [
+        $response = $this->awajDigitalClient->request('POST', '/v1/surveys/direct-order', [
             'json' => $payload,
         ]);
 

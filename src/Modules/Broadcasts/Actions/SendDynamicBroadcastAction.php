@@ -10,7 +10,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\Se
 final readonly class SendDynamicBroadcastAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
         private ?string $defaultSender = null,
     ) {}
 
@@ -21,7 +21,7 @@ final readonly class SendDynamicBroadcastAction
     {
         $payload = $data->toPayload($this->defaultSender);
 
-        $response = $this->client->request('POST', '/broadcasts/dynamic', [
+        $response = $this->awajDigitalClient->request('POST', '/broadcasts/dynamic', [
             'json' => $payload,
         ]);
 

@@ -11,7 +11,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\CallCenter\DataTransferObjects\Ag
 final readonly class ListAgentCallsAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     /**
@@ -31,7 +31,7 @@ final readonly class ListAgentCallsAction
             throw new ClientValidationException("Page must be at least 1, {$page} given.");
         }
 
-        $response = $this->client->request('GET', "/cc/agents/{$agentId}/calls", [
+        $response = $this->awajDigitalClient->request('GET', "/cc/agents/{$agentId}/calls", [
             'query' => [
                 'date' => $date,
                 'page' => $page,
@@ -48,7 +48,7 @@ final readonly class ListAgentCallsAction
         $rawData = (array) ($json['data'] ?? []);
 
         $calls = array_map(
-            fn (array $c) => AgentCallData::fromArray($c),
+            fn (array $c): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\CallCenter\DataTransferObjects\AgentCallData => AgentCallData::fromArray($c),
             $rawData
         );
 

@@ -88,10 +88,10 @@ final class AwajDigitalClientFunctionalTest extends TestCase
         try {
             $client->request('POST', '/broadcasts/direct', ['json' => []]);
             $this->fail('Expected PermissionDeniedException was not thrown.');
-        } catch (PermissionDeniedException $e) {
-            $this->assertStringContainsString('Direct broadcast permission not enabled', $e->getMessage());
-            $this->assertNotNull($e->hint);
-            $this->assertStringContainsString('permission', $e->hint);
+        } catch (PermissionDeniedException $permissionDeniedException) {
+            $this->assertStringContainsString('Direct broadcast permission not enabled', $permissionDeniedException->getMessage());
+            $this->assertNotNull($permissionDeniedException->hint);
+            $this->assertStringContainsString('permission', $permissionDeniedException->hint);
         }
     }
 
@@ -147,11 +147,11 @@ final class AwajDigitalClientFunctionalTest extends TestCase
         try {
             $client->request('POST', '/broadcasts', ['json' => []]);
             $this->fail('Expected ValidationFailedException was not thrown.');
-        } catch (ValidationFailedException $e) {
-            $this->assertSame(400, $e->statusCode);
-            $this->assertSame('Validation error', $e->getMessage());
-            $this->assertSame('01711000000', $e->duplicatedNumber);
-            $this->assertCount(1, $e->errors);
+        } catch (ValidationFailedException $validationFailedException) {
+            $this->assertSame(400, $validationFailedException->statusCode);
+            $this->assertSame('Validation error', $validationFailedException->getMessage());
+            $this->assertSame('01711000000', $validationFailedException->duplicatedNumber);
+            $this->assertCount(1, $validationFailedException->errors);
         }
     }
 
@@ -172,9 +172,9 @@ final class AwajDigitalClientFunctionalTest extends TestCase
         try {
             $client->request('POST', '/broadcasts/direct-tts', ['json' => []]);
             $this->fail('Expected RateLimitedException was not thrown.');
-        } catch (RateLimitedException $e) {
-            $this->assertSame(429, $e->statusCode);
-            $this->assertSame(5, $e->retryAfterSeconds);
+        } catch (RateLimitedException $rateLimitedException) {
+            $this->assertSame(429, $rateLimitedException->statusCode);
+            $this->assertSame(5, $rateLimitedException->retryAfterSeconds);
         }
     }
 
@@ -210,10 +210,10 @@ final class AwajDigitalClientFunctionalTest extends TestCase
         try {
             $client->request('GET', '/cc/agents/10/calls');
             $this->fail('Expected NotFoundException was not thrown.');
-        } catch (NotFoundException $e) {
-            $this->assertSame(404, $e->statusCode);
-            $this->assertSame('Agent not found', $e->getMessage());
-            $this->assertSame('agent_not_found', $e->errorCode);
+        } catch (NotFoundException $notFoundException) {
+            $this->assertSame(404, $notFoundException->statusCode);
+            $this->assertSame('Agent not found', $notFoundException->getMessage());
+            $this->assertSame('agent_not_found', $notFoundException->errorCode);
         }
     }
 
@@ -253,11 +253,11 @@ final class AwajDigitalClientFunctionalTest extends TestCase
         try {
             $client->request('POST', '/sdk/token', ['json' => ['agent_id' => 10]]);
             $this->fail('Expected PermissionDeniedException was not thrown.');
-        } catch (PermissionDeniedException $e) {
-            $this->assertStringNotContainsString($secretToken, $e->getMessage());
-            $this->assertStringNotContainsString($sipPassword, $e->getMessage());
+        } catch (PermissionDeniedException $permissionDeniedException) {
+            $this->assertStringNotContainsString($secretToken, $permissionDeniedException->getMessage());
+            $this->assertStringNotContainsString($sipPassword, $permissionDeniedException->getMessage());
 
-            foreach ($e->context as $value) {
+            foreach ($permissionDeniedException->context as $value) {
                 if (is_string($value)) {
                     $this->assertStringNotContainsString($secretToken, $value);
                     $this->assertStringNotContainsString($sipPassword, $value);

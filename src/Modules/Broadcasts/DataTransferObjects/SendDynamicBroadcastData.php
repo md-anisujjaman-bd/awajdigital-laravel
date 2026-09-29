@@ -37,6 +37,7 @@ final readonly class SendDynamicBroadcastData
             if (isset($seen[$val])) {
                 throw new ClientValidationException("Duplicate recipient phone number detected: {$val}.");
             }
+
             $seen[$val] = true;
         }
 
@@ -58,7 +59,7 @@ final readonly class SendDynamicBroadcastData
             'request_id' => $this->requestId->toString(),
             'voice' => $this->voice,
             'sender' => $senderNumber,
-            'recipients' => array_map(fn (DynamicRecipientData $r) => $r->toArray(), $this->recipients),
+            'recipients' => array_map(fn (DynamicRecipientData $r): array => $r->toArray(), $this->recipients),
         ];
     }
 }

@@ -10,12 +10,12 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Account\DataTransferObjects\Balan
 final readonly class GetBalanceAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     public function execute(): BalanceData
     {
-        $response = $this->client->request('GET', '/balance');
+        $response = $this->awajDigitalClient->request('GET', '/balance');
 
         /** @var array<string, mixed> $json */
         $json = (array) $response->json();

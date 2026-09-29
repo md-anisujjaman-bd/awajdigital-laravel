@@ -11,7 +11,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Surveys\DataTransferObjects\Surve
 final readonly class CreateSurveyAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
         private ?string $defaultSender = null,
     ) {}
 
@@ -19,7 +19,7 @@ final readonly class CreateSurveyAction
     {
         $payload = $data->toPayload($this->defaultSender);
 
-        $response = $this->client->request('POST', '/surveys', [
+        $response = $this->awajDigitalClient->request('POST', '/surveys', [
             'json' => $payload,
         ]);
 

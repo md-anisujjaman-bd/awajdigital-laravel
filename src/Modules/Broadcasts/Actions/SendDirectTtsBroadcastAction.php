@@ -10,7 +10,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\Se
 final readonly class SendDirectTtsBroadcastAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
         private ?string $defaultSender = null,
     ) {}
 
@@ -21,7 +21,7 @@ final readonly class SendDirectTtsBroadcastAction
     {
         $payload = $data->toPayload($this->defaultSender);
 
-        $response = $this->client->request('POST', '/broadcasts/direct-tts', [
+        $response = $this->awajDigitalClient->request('POST', '/broadcasts/direct-tts', [
             'json' => $payload,
         ]);
 

@@ -35,12 +35,13 @@ final readonly class SendBulkBroadcastData
 
         $normalized = [];
         $seen = [];
-        foreach ($phoneNumbers as $num) {
-            $phone = $num instanceof PhoneNumber ? $num : PhoneNumber::from((string) $num);
+        foreach ($phoneNumbers as $phoneNumber) {
+            $phone = $phoneNumber instanceof PhoneNumber ? $phoneNumber : PhoneNumber::from((string) $phoneNumber);
             $val = $phone->toString();
             if (isset($seen[$val])) {
                 throw new ClientValidationException("Duplicate recipient phone number detected: {$val}.");
             }
+
             $seen[$val] = true;
             $normalized[] = $phone;
         }
@@ -64,7 +65,7 @@ final readonly class SendBulkBroadcastData
             'request_id' => $this->requestId->toString(),
             'voice' => $this->voice,
             'sender' => $senderNumber,
-            'phone_numbers' => array_map(fn (PhoneNumber $p) => $p->toString(), $this->phoneNumbers),
+            'phone_numbers' => array_map(fn (PhoneNumber $p): string => $p->toString(), $this->phoneNumbers),
         ];
     }
 }

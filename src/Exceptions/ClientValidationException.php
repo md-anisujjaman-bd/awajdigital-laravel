@@ -18,7 +18,6 @@ class ClientValidationException extends AwajDigitalException
     ) {
         parent::__construct(
             message: $message,
-            statusCode: null,
             errorCode: 'client_validation_failed',
             context: ['errors' => $errors],
             previous: $previous,

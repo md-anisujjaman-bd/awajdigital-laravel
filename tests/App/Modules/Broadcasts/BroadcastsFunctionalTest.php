@@ -33,13 +33,13 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Tests\TestCase;
 
 final class BroadcastsFunctionalTest extends TestCase
 {
-    private AwajDigitalClient $client;
+    private AwajDigitalClient $awajDigitalClient;
 
     #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
-        $this->client = new AwajDigitalClient([
+        $this->awajDigitalClient = new AwajDigitalClient([
             'token' => 'test-token',
             'default_sender' => '8809612000000',
         ]);
@@ -60,7 +60,7 @@ final class BroadcastsFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new SendOtpAction($this->client, '8809612000000');
+        $action = new SendOtpAction($this->awajDigitalClient, '8809612000000');
         $requestId = RequestId::from('01J8TEST000000000000000000');
 
         $data = new SendOtpData(
@@ -71,12 +71,12 @@ final class BroadcastsFunctionalTest extends TestCase
         );
 
         // Act
-        $summary = $action->execute($data);
+        $broadcastSummaryData = $action->execute($data);
 
         // Assert
-        $this->assertSame(101, $summary->id);
-        $this->assertSame('OTP Broadcast', $summary->name);
-        $this->assertSame('broadcasting', $summary->status);
+        $this->assertSame(101, $broadcastSummaryData->id);
+        $this->assertSame('OTP Broadcast', $broadcastSummaryData->name);
+        $this->assertSame('broadcasting', $broadcastSummaryData->status);
 
         Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://api.awajdigital.com/api/broadcasts/otp'
@@ -100,8 +100,8 @@ final class BroadcastsFunctionalTest extends TestCase
                 otpCode: '12', // Less than 4 digits
             );
             $this->fail('Expected ClientValidationException was not thrown.');
-        } catch (ClientValidationException $e) {
-            $this->assertStringContainsString('OTP code must be between 4 and 6 digits', $e->getMessage());
+        } catch (ClientValidationException $clientValidationException) {
+            $this->assertStringContainsString('OTP code must be between 4 and 6 digits', $clientValidationException->getMessage());
             Http::assertNothingSent();
         }
     }
@@ -114,7 +114,7 @@ final class BroadcastsFunctionalTest extends TestCase
             ->push(['success' => false, 'message' => 'Sender not approved'], 403)
             ->push(['success' => false, 'message' => 'Duplicate request_id'], 409);
 
-        $action = new SendOtpAction($this->client, '8809612000000');
+        $action = new SendOtpAction($this->awajDigitalClient, '8809612000000');
         $data = new SendOtpData(
             voice: 'otp_voice',
             phoneNumber: '01712345678',
@@ -122,13 +122,13 @@ final class BroadcastsFunctionalTest extends TestCase
         );
 
         // Act & Assert 400
-        $this->assertThrows(fn () => $action->execute($data), ValidationFailedException::class);
+        $this->assertThrows(fn (): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\BroadcastSummaryData => $action->execute($data), ValidationFailedException::class);
 
         // Act & Assert 403
-        $this->assertThrows(fn () => $action->execute($data), PermissionDeniedException::class);
+        $this->assertThrows(fn (): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\BroadcastSummaryData => $action->execute($data), PermissionDeniedException::class);
 
         // Act & Assert 409 (Idempotency conflict)
-        $this->assertThrows(fn () => $action->execute($data), ConflictException::class);
+        $this->assertThrows(fn (): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\BroadcastSummaryData => $action->execute($data), ConflictException::class);
     }
 
     public function test_send_bulk_broadcast_success(): void
@@ -145,18 +145,18 @@ final class BroadcastsFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new SendBulkBroadcastAction($this->client, '8809612000000');
+        $action = new SendBulkBroadcastAction($this->awajDigitalClient, '8809612000000');
         $data = new SendBulkBroadcastData(
             voice: 'main_voice',
             phoneNumbers: ['01711111111', '01822222222'],
         );
 
         // Act
-        $summary = $action->execute($data);
+        $broadcastSummaryData = $action->execute($data);
 
         // Assert
-        $this->assertSame(102, $summary->id);
-        $this->assertSame('Bulk Voice', $summary->name);
+        $this->assertSame(102, $broadcastSummaryData->id);
+        $this->assertSame('Bulk Voice', $broadcastSummaryData->name);
 
         Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://api.awajdigital.com/api/broadcasts'
@@ -177,8 +177,8 @@ final class BroadcastsFunctionalTest extends TestCase
                 phoneNumbers: ['01711111111', '01711111111'],
             );
             $this->fail('Expected ClientValidationException was not thrown.');
-        } catch (ClientValidationException $e) {
-            $this->assertStringContainsString('Duplicate recipient phone number detected', $e->getMessage());
+        } catch (ClientValidationException $clientValidationException) {
+            $this->assertStringContainsString('Duplicate recipient phone number detected', $clientValidationException->getMessage());
             Http::assertNothingSent();
         }
     }
@@ -191,7 +191,7 @@ final class BroadcastsFunctionalTest extends TestCase
             ->push(['success' => true, 'message' => 'Request already accepted', 'data' => ['request_id' => '01J8TEST000000000000000000']], 202)
             ->push(['message' => 'Request failed: voice missing dynamic part'], 500);
 
-        $action = new SendDynamicBroadcastAction($this->client, '8809612000000');
+        $action = new SendDynamicBroadcastAction($this->awajDigitalClient, '8809612000000');
         $data = new SendDynamicBroadcastData(
             voice: 'dyn_voice',
             recipients: [
@@ -214,7 +214,7 @@ final class BroadcastsFunctionalTest extends TestCase
         $this->assertSame('Request already accepted', $result2['message']);
 
         // Act 3: Retry of a failed request yields 500 per endpoints.md
-        $this->assertThrows(fn () => $action->execute($data), ServerErrorException::class);
+        $this->assertThrows(fn (): array => $action->execute($data), ServerErrorException::class);
     }
 
     public function test_send_direct_broadcast_success(): void
@@ -231,17 +231,17 @@ final class BroadcastsFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new SendDirectBroadcastAction($this->client, '8809612000000');
+        $action = new SendDirectBroadcastAction($this->awajDigitalClient, '8809612000000');
         $data = new SendDirectBroadcastData(
             phoneNumbers: ['01711111111'],
             voices: ['https://cdn.example.com/audio1.wav'],
         );
 
         // Act
-        $summary = $action->execute($data);
+        $broadcastSummaryData = $action->execute($data);
 
         // Assert
-        $this->assertSame(103, $summary->id);
+        $this->assertSame(103, $broadcastSummaryData->id);
     }
 
     public function test_send_direct_tts_broadcast_and_rate_limit(): void
@@ -251,7 +251,7 @@ final class BroadcastsFunctionalTest extends TestCase
             ->push(['success' => true, 'message' => 'TTS broadcast request accepted, processing started', 'data' => ['request_id' => '01J8TEST000000000000000000']], 202)
             ->push(['success' => false, 'message' => 'Rate limit exceeded: 1 req/sec'], 429, ['Retry-After' => '1']);
 
-        $action = new SendDirectTtsBroadcastAction($this->client, '8809612000000');
+        $action = new SendDirectTtsBroadcastAction($this->awajDigitalClient, '8809612000000');
         $data = new SendDirectTtsBroadcastData(
             phoneNumbers: ['01711111111'],
             texts: ['আপনার ওটিপি কোড হলো ১ ২ ৩ ৪'],
@@ -267,8 +267,8 @@ final class BroadcastsFunctionalTest extends TestCase
         try {
             $action->execute($data);
             $this->fail('Expected RateLimitedException was not thrown.');
-        } catch (RateLimitedException $e) {
-            $this->assertSame(1, $e->retryAfterSeconds);
+        } catch (RateLimitedException $rateLimitedException) {
+            $this->assertSame(1, $rateLimitedException->retryAfterSeconds);
         }
     }
 
@@ -283,22 +283,22 @@ final class BroadcastsFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new GetDirectTtsStatusAction($this->client);
+        $action = new GetDirectTtsStatusAction($this->awajDigitalClient);
 
         // Act
-        $status = $action->execute('01J8TEST000000000000000000');
+        $directTtsStatusData = $action->execute('01J8TEST000000000000000000');
 
         // Assert
-        $this->assertSame('completed', $status->status);
-        $this->assertSame(105, $status->broadcastId);
-        $this->assertNull($status->error);
+        $this->assertSame('completed', $directTtsStatusData->status);
+        $this->assertSame(105, $directTtsStatusData->broadcastId);
+        $this->assertNull($directTtsStatusData->error);
     }
 
     public function test_list_broadcasts_validates_90_days_limit_client_side(): void
     {
         // Arrange
         Http::fake();
-        $action = new ListBroadcastsAction($this->client);
+        $action = new ListBroadcastsAction($this->awajDigitalClient);
 
         // Act & Assert
         try {
@@ -307,8 +307,8 @@ final class BroadcastsFunctionalTest extends TestCase
                 endDate: '2026-05-01T00:00:00Z', // 120 days > 90 days
             );
             $this->fail('Expected ClientValidationException was not thrown.');
-        } catch (ClientValidationException $e) {
-            $this->assertStringContainsString('Date range cannot exceed 90 days', $e->getMessage());
+        } catch (ClientValidationException $clientValidationException) {
+            $this->assertStringContainsString('Date range cannot exceed 90 days', $clientValidationException->getMessage());
             Http::assertNothingSent();
         }
     }
@@ -341,16 +341,16 @@ final class BroadcastsFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new GetBroadcastResultAction($this->client);
+        $action = new GetBroadcastResultAction($this->awajDigitalClient);
 
         // Act
-        $result = $action->execute(101);
+        $broadcastResultData = $action->execute(101);
 
         // Assert
-        $this->assertSame(101, $result->id);
-        $this->assertTrue($result->isComplete);
-        $this->assertSame(1, $result->completeCount);
-        $this->assertCount(1, (array) $result->results);
+        $this->assertSame(101, $broadcastResultData->id);
+        $this->assertTrue($broadcastResultData->isComplete);
+        $this->assertSame(1, $broadcastResultData->completeCount);
+        $this->assertCount(1, (array) $broadcastResultData->results);
     }
 
     public function test_list_broadcasts_with_request_id_filter(): void
@@ -371,7 +371,7 @@ final class BroadcastsFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new ListBroadcastsAction($this->client);
+        $action = new ListBroadcastsAction($this->awajDigitalClient);
 
         // Act
         $result = $action->execute(requestId: '01J8TEST000000000000000000');
@@ -403,15 +403,15 @@ final class BroadcastsFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new GetBroadcastResultAction($this->client);
+        $action = new GetBroadcastResultAction($this->awajDigitalClient);
 
         // Act
-        $result = $action->execute(102);
+        $broadcastResultData = $action->execute(102);
 
         // Assert
-        $this->assertSame(102, $result->id);
-        $this->assertFalse($result->isComplete);
-        $this->assertSame('Broadcast is still in progress', $result->message);
+        $this->assertSame(102, $broadcastResultData->id);
+        $this->assertFalse($broadcastResultData->isComplete);
+        $this->assertSame('Broadcast is still in progress', $broadcastResultData->message);
     }
 
     public function test_poll_direct_tts_status_polls_until_completed(): void
@@ -427,7 +427,7 @@ final class BroadcastsFunctionalTest extends TestCase
         $trackedAttempts = [];
 
         // Act
-        $status = $manager->pollDirectTtsStatus(
+        $directTtsStatusData = $manager->pollDirectTtsStatus(
             requestId: '01J8TEST000000000000000000',
             maxAttempts: 5,
             intervalSeconds: 0,
@@ -437,8 +437,8 @@ final class BroadcastsFunctionalTest extends TestCase
         );
 
         // Assert
-        $this->assertSame('completed', $status->status);
-        $this->assertSame(777, $status->broadcastId);
+        $this->assertSame('completed', $directTtsStatusData->status);
+        $this->assertSame(777, $directTtsStatusData->broadcastId);
         $this->assertCount(3, $trackedAttempts);
         $this->assertSame([1, 'pending'], $trackedAttempts[0]);
         $this->assertSame([2, 'processing'], $trackedAttempts[1]);

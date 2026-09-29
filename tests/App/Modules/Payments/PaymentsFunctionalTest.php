@@ -15,13 +15,13 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Tests\TestCase;
 
 final class PaymentsFunctionalTest extends TestCase
 {
-    private AwajDigitalClient $client;
+    private AwajDigitalClient $awajDigitalClient;
 
     #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
-        $this->client = new AwajDigitalClient(['token' => 'test-token']);
+        $this->awajDigitalClient = new AwajDigitalClient(['token' => 'test-token']);
     }
 
     public function test_create_payment_success(): void
@@ -35,7 +35,7 @@ final class PaymentsFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new CreatePaymentAction($this->client);
+        $action = new CreatePaymentAction($this->awajDigitalClient);
         $data = new CreatePaymentData(
             amount: 50.0,
             successUrl: 'https://example.com/checkout/success',
@@ -43,11 +43,11 @@ final class PaymentsFunctionalTest extends TestCase
         );
 
         // Act
-        $urlData = $action->execute($data);
+        $paymentUrlData = $action->execute($data);
 
         // Assert
-        $this->assertSame('https://checkout.awajdigital.com/pay/inv_123', $urlData->paymentUrl);
-        $this->assertSame('inv_123', $urlData->invoiceId);
+        $this->assertSame('https://checkout.awajdigital.com/pay/inv_123', $paymentUrlData->paymentUrl);
+        $this->assertSame('inv_123', $paymentUrlData->invoiceId);
 
         Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://api.awajdigital.com/api/payments/create'
@@ -68,8 +68,8 @@ final class PaymentsFunctionalTest extends TestCase
                 successUrl: 'https://example.com/success',
             );
             $this->fail('Expected ClientValidationException was not thrown.');
-        } catch (ClientValidationException $e) {
-            $this->assertStringContainsString('Payment amount must be at least 20 BDT', $e->getMessage());
+        } catch (ClientValidationException $clientValidationException) {
+            $this->assertStringContainsString('Payment amount must be at least 20 BDT', $clientValidationException->getMessage());
             Http::assertNothingSent();
         }
     }
@@ -86,8 +86,8 @@ final class PaymentsFunctionalTest extends TestCase
                 successUrl: 'http://insecure-example.com/success',
             );
             $this->fail('Expected ClientValidationException was not thrown.');
-        } catch (ClientValidationException $e) {
-            $this->assertStringContainsString('Success URL must use HTTPS protocol', $e->getMessage());
+        } catch (ClientValidationException $clientValidationException) {
+            $this->assertStringContainsString('Success URL must use HTTPS protocol', $clientValidationException->getMessage());
             Http::assertNothingSent();
         }
     }
@@ -104,14 +104,14 @@ final class PaymentsFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new GetPaymentStatusAction($this->client);
+        $action = new GetPaymentStatusAction($this->awajDigitalClient);
 
         // Act
-        $status = $action->execute('inv_123');
+        $paymentStatusData = $action->execute('inv_123');
 
         // Assert
-        $this->assertSame('inv_123', $status->invoiceId);
-        $this->assertSame('completed', $status->status);
-        $this->assertSame(500.0, $status->amount);
+        $this->assertSame('inv_123', $paymentStatusData->invoiceId);
+        $this->assertSame('completed', $paymentStatusData->status);
+        $this->assertSame(500.0, $paymentStatusData->amount);
     }
 }

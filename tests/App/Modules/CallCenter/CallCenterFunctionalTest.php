@@ -17,13 +17,13 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Tests\TestCase;
 
 final class CallCenterFunctionalTest extends TestCase
 {
-    private AwajDigitalClient $client;
+    private AwajDigitalClient $awajDigitalClient;
 
     #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
-        $this->client = new AwajDigitalClient(['token' => 'test-token']);
+        $this->awajDigitalClient = new AwajDigitalClient(['token' => 'test-token']);
     }
 
     public function test_list_agents_success(): void
@@ -46,7 +46,7 @@ final class CallCenterFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new ListAgentsAction($this->client);
+        $action = new ListAgentsAction($this->awajDigitalClient);
 
         // Act
         $agents = $action->execute();
@@ -68,7 +68,7 @@ final class CallCenterFunctionalTest extends TestCase
             ], 429),
         ]);
 
-        $action = new ListAgentsAction($this->client);
+        $action = new ListAgentsAction($this->awajDigitalClient);
 
         // Act & Assert
         $this->expectException(RateLimitedException::class);
@@ -103,7 +103,7 @@ final class CallCenterFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new ListAgentCallsAction($this->client);
+        $action = new ListAgentCallsAction($this->awajDigitalClient);
 
         // Act
         $response = $action->execute(10, '2026-09-29', 1);
@@ -123,14 +123,14 @@ final class CallCenterFunctionalTest extends TestCase
     {
         // Arrange
         Http::fake();
-        $action = new ListAgentCallsAction($this->client);
+        $action = new ListAgentCallsAction($this->awajDigitalClient);
 
         // Act & Assert
         try {
             $action->execute(10, '29-09-2026'); // Not YYYY-MM-DD
             $this->fail('Expected ClientValidationException was not thrown.');
-        } catch (ClientValidationException $e) {
-            $this->assertStringContainsString('Date must be formatted as YYYY-MM-DD', $e->getMessage());
+        } catch (ClientValidationException $clientValidationException) {
+            $this->assertStringContainsString('Date must be formatted as YYYY-MM-DD', $clientValidationException->getMessage());
             Http::assertNothingSent();
         }
     }
@@ -147,15 +147,15 @@ final class CallCenterFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new MintSdkTokenAction($this->client);
+        $action = new MintSdkTokenAction($this->awajDigitalClient);
 
         // Act
-        $tokenData = $action->execute(10);
+        $mintSdkTokenData = $action->execute(10);
 
         // Assert
-        $this->assertSame('avt_sample_token_xyz', $tokenData->token);
-        $this->assertSame(3600, $tokenData->expiresIn);
-        $this->assertSame('https://api.awajdigital.com/sdk/session', $tokenData->sessionUrl);
+        $this->assertSame('avt_sample_token_xyz', $mintSdkTokenData->token);
+        $this->assertSame(3600, $mintSdkTokenData->expiresIn);
+        $this->assertSame('https://api.awajdigital.com/sdk/session', $mintSdkTokenData->sessionUrl);
 
         Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://api.awajdigital.com/api/sdk/token'
@@ -173,13 +173,13 @@ final class CallCenterFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new RevokeSdkSessionAction($this->client);
+        $action = new RevokeSdkSessionAction($this->awajDigitalClient);
 
         // Act
-        $revokeData = $action->execute(10);
+        $revokeSessionData = $action->execute(10);
 
         // Assert
-        $this->assertTrue($revokeData->revoked);
+        $this->assertTrue($revokeSessionData->revoked);
 
         Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://api.awajdigital.com/api/sdk/session'

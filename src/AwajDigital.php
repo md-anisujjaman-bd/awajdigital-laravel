@@ -53,7 +53,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Testing\AwajDigitalFake;
 
 final class AwajDigital
 {
-    private ?AwajDigitalClient $client = null;
+    private ?AwajDigitalClient $awajDigitalClient = null;
 
     /**
      * @param  array<string, mixed>  $config
@@ -77,11 +77,11 @@ final class AwajDigital
 
     public function client(): AwajDigitalClient
     {
-        if ($this->client === null) {
-            $this->client = new AwajDigitalClient($this->config);
+        if ($this->awajDigitalClient === null) {
+            $this->awajDigitalClient = new AwajDigitalClient($this->config);
         }
 
-        return $this->client;
+        return $this->awajDigitalClient;
     }
 
     private function defaultSender(): ?string

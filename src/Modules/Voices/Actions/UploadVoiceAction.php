@@ -11,12 +11,12 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Voices\DataTransferObjects\VoiceD
 final readonly class UploadVoiceAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     public function execute(UploadVoiceData $data): VoiceData
     {
-        $response = $this->client->request('POST', '/voices/upload', [
+        $response = $this->awajDigitalClient->request('POST', '/voices/upload', [
             'data' => [
                 'name' => $data->name,
             ],

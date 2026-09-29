@@ -26,11 +26,11 @@ final class GetBalanceActionFunctionalTest extends TestCase
         $action = new GetBalanceAction($client);
 
         // Act
-        $balance = $action->execute();
+        $balanceData = $action->execute();
 
         // Assert
-        $this->assertSame(1250.75, $balance->amount);
-        $this->assertSame('BDT', $balance->currency);
+        $this->assertSame(1250.75, $balanceData->amount);
+        $this->assertSame('BDT', $balanceData->currency);
 
         Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://api.awajdigital.com/api/balance'

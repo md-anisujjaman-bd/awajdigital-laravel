@@ -11,7 +11,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\CallCenter\DataTransferObjects\Re
 final readonly class RevokeSdkSessionAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     public function execute(int $agentId): RevokeSessionData
@@ -20,7 +20,7 @@ final readonly class RevokeSdkSessionAction
             throw new ClientValidationException('Agent ID must be a positive integer.');
         }
 
-        $response = $this->client->request('DELETE', '/sdk/session', [
+        $response = $this->awajDigitalClient->request('DELETE', '/sdk/session', [
             'json' => [
                 'agent_id' => $agentId,
             ],

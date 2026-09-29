@@ -72,25 +72,25 @@ final class AwajDigitalClient
     public function request(string $method, string $path, array $options = []): Response
     {
         $url = $this->buildUrl($path);
-        $pending = $this->createPendingRequest($method, $options);
+        $pendingRequest = $this->createPendingRequest($method, $options);
 
         $upperMethod = strtoupper($method);
 
         try {
             $response = match ($upperMethod) {
-                'GET' => $pending->get($url, (array) ($options['query'] ?? [])),
+                'GET' => $pendingRequest->get($url, (array) ($options['query'] ?? [])),
                 'POST' => ! empty($options['attach'])
-                    ? $pending->post($url, (array) ($options['data'] ?? []))
-                    : $pending->post($url, (array) ($options['json'] ?? [])),
-                'DELETE' => $pending->delete($url, (array) ($options['json'] ?? [])),
+                    ? $pendingRequest->post($url, (array) ($options['data'] ?? []))
+                    : $pendingRequest->post($url, (array) ($options['json'] ?? [])),
+                'DELETE' => $pendingRequest->delete($url, (array) ($options['json'] ?? [])),
                 default => throw new ApiException("Unsupported HTTP method [{$method}]."),
             };
-        } catch (Throwable $e) {
-            if ($e instanceof AwajDigitalException) {
-                throw $e;
+        } catch (Throwable $throwable) {
+            if ($throwable instanceof AwajDigitalException) {
+                throw $throwable;
             }
 
-            throw new ServerErrorException('Network error connecting to AwajDigital: '.$e->getMessage(), 0, null, $e);
+            throw new ServerErrorException('Network error connecting to AwajDigital: '.$throwable->getMessage(), 0, null, $throwable);
         }
 
         if ($response->successful()) {
@@ -105,10 +105,10 @@ final class AwajDigitalClient
      */
     private function createPendingRequest(string $method, array $options): PendingRequest
     {
-        $pending = Http::timeout($this->timeout)->acceptJson();
+        $pendingRequest = Http::timeout($this->timeout)->acceptJson();
 
         if ($this->token !== null && $this->token !== '') {
-            $pending->withToken($this->token);
+            $pendingRequest->withToken($this->token);
         }
 
         /** @var array<int, array{name: string, contents: resource|string, filename?: string}> $attach */
@@ -116,14 +116,14 @@ final class AwajDigitalClient
 
         if (! empty($attach)) {
             foreach ($attach as $file) {
-                $pending->attach($file['name'], $file['contents'], $file['filename'] ?? null);
+                $pendingRequest->attach($file['name'], $file['contents'], $file['filename'] ?? null);
             }
         } else {
-            $pending->asJson();
+            $pendingRequest->asJson();
         }
 
         if (strtoupper($method) === 'GET' && $this->retry['times'] > 0) {
-            $pending->retry(
+            $pendingRequest->retry(
                 times: $this->retry['times'],
                 sleepMilliseconds: $this->retry['sleep_ms'],
                 when: fn (Throwable $exception): bool => $this->shouldRetry($exception),
@@ -131,7 +131,7 @@ final class AwajDigitalClient
             );
         }
 
-        return $pending;
+        return $pendingRequest;
     }
 
     private function shouldRetry(Throwable $exception): bool

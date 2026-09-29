@@ -10,7 +10,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Senders\DataTransferObjects\Sende
 final readonly class ListSendersAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     /**
@@ -18,7 +18,7 @@ final readonly class ListSendersAction
      */
     public function execute(): array
     {
-        $response = $this->client->request('GET', '/senders');
+        $response = $this->awajDigitalClient->request('GET', '/senders');
 
         /** @var array<string, mixed> $json */
         $json = (array) $response->json();
@@ -27,7 +27,7 @@ final readonly class ListSendersAction
         $rawSenders = (array) ($json['senders'] ?? []);
 
         return array_map(
-            fn (array $s) => SenderData::fromArray($s),
+            fn (array $s): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\Senders\DataTransferObjects\SenderData => SenderData::fromArray($s),
             $rawSenders
         );
     }

@@ -11,7 +11,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\CallCenter\DataTransferObjects\Mi
 final readonly class MintSdkTokenAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     public function execute(int $agentId): MintSdkTokenData
@@ -20,7 +20,7 @@ final readonly class MintSdkTokenAction
             throw new ClientValidationException('Agent ID must be a positive integer.');
         }
 
-        $response = $this->client->request('POST', '/sdk/token', [
+        $response = $this->awajDigitalClient->request('POST', '/sdk/token', [
             'json' => [
                 'agent_id' => $agentId,
             ],

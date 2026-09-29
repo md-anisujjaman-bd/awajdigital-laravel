@@ -16,17 +16,17 @@ final class AwajDigitalManagerFunctionalTest extends TestCase
         AwajDigitalFacade::fake();
 
         // Act & Assert Check Balance
-        $balance = AwajDigitalFacade::checkBalance();
-        $this->assertSame(1250.75, $balance->amount);
+        $balanceData = AwajDigitalFacade::checkBalance();
+        $this->assertSame(1250.75, $balanceData->amount);
 
         // Act & Assert Send OTP
-        $otp = AwajDigitalFacade::sendOtp(new SendOtpData(
+        $broadcastSummaryData = AwajDigitalFacade::sendOtp(new SendOtpData(
             voice: 'test_voice',
             phoneNumber: '01712345678',
             otpCode: '1234',
             sender: '8809612000000',
         ));
-        $this->assertSame(101, $otp->id);
+        $this->assertSame(101, $broadcastSummaryData->id);
 
         // Act & Assert List Voices
         $voices = AwajDigitalFacade::listVoices();
@@ -41,10 +41,10 @@ final class AwajDigitalManagerFunctionalTest extends TestCase
         $this->assertCount(1, $agents);
 
         // Act & Assert Mint SDK Token
-        $token = AwajDigitalFacade::mintSdkToken(10);
-        $this->assertSame('avt_test_token_123', $token->token);
+        $mintSdkTokenData = AwajDigitalFacade::mintSdkToken(10);
+        $this->assertSame('avt_test_token_123', $mintSdkTokenData->token);
 
         // Assert Sent
-        AwajDigitalFacade::assertSent(fn ($request) => str_contains($request->url(), '/balance'));
+        AwajDigitalFacade::assertSent(fn ($request): bool => str_contains($request->url(), '/balance'));
     }
 }

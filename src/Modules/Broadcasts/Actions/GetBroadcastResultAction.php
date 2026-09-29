@@ -11,7 +11,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\Br
 final readonly class GetBroadcastResultAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     public function execute(int $id): BroadcastResultData
@@ -20,7 +20,7 @@ final readonly class GetBroadcastResultAction
             throw new ClientValidationException('Broadcast ID must be a positive integer.');
         }
 
-        $response = $this->client->request('GET', "/broadcasts/{$id}/result");
+        $response = $this->awajDigitalClient->request('GET', "/broadcasts/{$id}/result");
 
         /** @var array<string, mixed> $json */
         $json = (array) $response->json();

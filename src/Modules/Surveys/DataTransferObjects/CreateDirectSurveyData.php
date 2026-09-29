@@ -53,11 +53,12 @@ final readonly class CreateDirectSurveyData
         }
 
         $seenKeys = [];
-        foreach ($dtmfOptions as $opt) {
-            if (isset($seenKeys[$opt->key])) {
-                throw new ClientValidationException("Duplicate DTMF option key detected: [{$opt->key}].");
+        foreach ($dtmfOptions as $dtmfOption) {
+            if (isset($seenKeys[$dtmfOption->key])) {
+                throw new ClientValidationException("Duplicate DTMF option key detected: [{$dtmfOption->key}].");
             }
-            $seenKeys[$opt->key] = true;
+
+            $seenKeys[$dtmfOption->key] = true;
         }
 
         if (count($startVoices) > 10) {
@@ -74,12 +75,13 @@ final readonly class CreateDirectSurveyData
 
         $normalized = [];
         $seen = [];
-        foreach ($phoneNumbers as $num) {
-            $phone = $num instanceof PhoneNumber ? $num : PhoneNumber::from((string) $num);
+        foreach ($phoneNumbers as $phoneNumber) {
+            $phone = $phoneNumber instanceof PhoneNumber ? $phoneNumber : PhoneNumber::from((string) $phoneNumber);
             $val = $phone->toString();
             if (isset($seen[$val])) {
                 throw new ClientValidationException("Duplicate recipient phone number detected: {$val}.");
             }
+
             $seen[$val] = true;
             $normalized[] = $phone;
         }
@@ -99,7 +101,7 @@ final readonly class CreateDirectSurveyData
             throw new ClientValidationException('Sender number is required. Provide it in CreateDirectSurveyData or configure default_sender.');
         }
 
-        $mapVoices = fn (array $voices) => array_map(function ($v) {
+        $mapVoices = fn (array $voices): array => array_map(function ($v) {
             if ($v instanceof VoiceEntry) {
                 return $v->toPayload();
             }
@@ -110,15 +112,15 @@ final readonly class CreateDirectSurveyData
         $payload = [
             'request_id' => $this->requestId->toString(),
             'sender' => $senderNumber,
-            'phone_numbers' => array_map(fn (PhoneNumber $p) => $p->toString(), $this->phoneNumbers),
+            'phone_numbers' => array_map(fn (PhoneNumber $p): string => $p->toString(), $this->phoneNumbers),
             'question_voices' => $mapVoices($this->questionVoices),
-            'dtmf_options' => array_map(fn (DtmfOptionData $opt) => $opt->toPayload(), $this->dtmfOptions),
+            'dtmf_options' => array_map(fn (DtmfOptionData $opt): array => $opt->toPayload(), $this->dtmfOptions),
             'config' => [
                 'retry_count' => $this->retryCount,
             ],
         ];
 
-        if (! empty($this->startVoices)) {
+        if ($this->startVoices !== []) {
             $payload['start_voices'] = $mapVoices($this->startVoices);
         }
 
@@ -128,7 +130,7 @@ final readonly class CreateDirectSurveyData
                 : $this->invalidVoice;
         }
 
-        if (! empty($this->endVoices)) {
+        if ($this->endVoices !== []) {
             $payload['end_voices'] = $mapVoices($this->endVoices);
         }
 

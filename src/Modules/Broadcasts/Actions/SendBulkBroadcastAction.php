@@ -11,7 +11,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\Se
 final readonly class SendBulkBroadcastAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
         private ?string $defaultSender = null,
     ) {}
 
@@ -19,7 +19,7 @@ final readonly class SendBulkBroadcastAction
     {
         $payload = $data->toPayload($this->defaultSender);
 
-        $response = $this->client->request('POST', '/broadcasts', [
+        $response = $this->awajDigitalClient->request('POST', '/broadcasts', [
             'json' => $payload,
         ]);
 

@@ -10,7 +10,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Voices\DataTransferObjects\VoiceD
 final readonly class ListVoicesAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     /**
@@ -18,7 +18,7 @@ final readonly class ListVoicesAction
      */
     public function execute(): array
     {
-        $response = $this->client->request('GET', '/voices');
+        $response = $this->awajDigitalClient->request('GET', '/voices');
 
         /** @var array<string, mixed> $json */
         $json = (array) $response->json();
@@ -27,7 +27,7 @@ final readonly class ListVoicesAction
         $rawVoices = (array) ($json['voices'] ?? []);
 
         return array_map(
-            fn (array $v) => VoiceData::fromArray($v),
+            fn (array $v): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\Voices\DataTransferObjects\VoiceData => VoiceData::fromArray($v),
             $rawVoices
         );
     }

@@ -11,12 +11,12 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Payments\DataTransferObjects\Paym
 final readonly class CreatePaymentAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     public function execute(CreatePaymentData $data): PaymentUrlData
     {
-        $response = $this->client->request('POST', '/payments/create', [
+        $response = $this->awajDigitalClient->request('POST', '/payments/create', [
             'json' => $data->toPayload(),
         ]);
 

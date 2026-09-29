@@ -11,7 +11,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Payments\DataTransferObjects\Paym
 final readonly class GetPaymentStatusAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     public function execute(string $invoiceId): PaymentStatusData
@@ -20,7 +20,7 @@ final readonly class GetPaymentStatusAction
             throw new ClientValidationException('Invoice ID cannot be empty.');
         }
 
-        $response = $this->client->request('GET', "/payments/{$invoiceId}/status");
+        $response = $this->awajDigitalClient->request('GET', "/payments/{$invoiceId}/status");
 
         /** @var array<string, mixed> $json */
         $json = (array) $response->json();

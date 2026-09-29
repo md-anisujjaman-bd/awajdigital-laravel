@@ -16,13 +16,13 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Tests\TestCase;
 
 final class VoicesSendersFunctionalTest extends TestCase
 {
-    private AwajDigitalClient $client;
+    private AwajDigitalClient $awajDigitalClient;
 
     #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
-        $this->client = new AwajDigitalClient(['token' => 'test-token']);
+        $this->awajDigitalClient = new AwajDigitalClient(['token' => 'test-token']);
     }
 
     public function test_list_voices_success(): void
@@ -42,7 +42,7 @@ final class VoicesSendersFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new ListVoicesAction($this->client);
+        $action = new ListVoicesAction($this->awajDigitalClient);
 
         // Act
         $voices = $action->execute();
@@ -68,16 +68,16 @@ final class VoicesSendersFunctionalTest extends TestCase
         $tempFile = tempnam(sys_get_temp_dir(), 'voice_').'.wav';
         file_put_contents($tempFile, 'RIFFfake-wav-content');
 
-        $data = UploadVoiceData::fromPath($tempFile, 'Greeting Audio');
-        $action = new UploadVoiceAction($this->client);
+        $uploadVoiceData = UploadVoiceData::fromPath($tempFile, 'Greeting Audio');
+        $action = new UploadVoiceAction($this->awajDigitalClient);
 
         // Act
-        $voice = $action->execute($data);
+        $voiceData = $action->execute($uploadVoiceData);
 
         // Assert
-        $this->assertSame(10, $voice->id);
-        $this->assertSame('Greeting Audio', $voice->name);
-        $this->assertSame('pending', $voice->status);
+        $this->assertSame(10, $voiceData->id);
+        $this->assertSame('Greeting Audio', $voiceData->name);
+        $this->assertSame('pending', $voiceData->status);
 
         Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://api.awajdigital.com/api/voices/upload'
@@ -100,8 +100,8 @@ final class VoicesSendersFunctionalTest extends TestCase
         try {
             UploadVoiceData::fromPath($tempFile);
             $this->fail('Expected ClientValidationException was not thrown.');
-        } catch (ClientValidationException $e) {
-            $this->assertStringContainsString('Unsupported audio format', $e->getMessage());
+        } catch (ClientValidationException $clientValidationException) {
+            $this->assertStringContainsString('Unsupported audio format', $clientValidationException->getMessage());
             Http::assertNothingSent();
         }
 
@@ -126,7 +126,7 @@ final class VoicesSendersFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new ListSendersAction($this->client);
+        $action = new ListSendersAction($this->awajDigitalClient);
 
         // Act
         $senders = $action->execute();

@@ -12,7 +12,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\Br
 final readonly class ListBroadcastsAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     /**
@@ -44,7 +44,7 @@ final readonly class ListBroadcastsAction
             }
         }
 
-        $response = $this->client->request('GET', '/broadcasts', [
+        $response = $this->awajDigitalClient->request('GET', '/broadcasts', [
             'query' => $query,
         ]);
 
@@ -55,7 +55,7 @@ final readonly class ListBroadcastsAction
         $rawBroadcasts = (array) ($json['broadcasts'] ?? []);
 
         $broadcasts = array_map(
-            fn (array $item) => BroadcastSummaryData::fromArray($item),
+            fn (array $item): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\BroadcastSummaryData => BroadcastSummaryData::fromArray($item),
             $rawBroadcasts
         );
 

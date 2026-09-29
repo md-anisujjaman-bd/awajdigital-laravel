@@ -11,7 +11,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Surveys\DataTransferObjects\Surve
 final readonly class GetSurveyResultAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     public function execute(int $id): SurveyResultData
@@ -20,7 +20,7 @@ final readonly class GetSurveyResultAction
             throw new ClientValidationException('Survey ID must be a positive integer.');
         }
 
-        $response = $this->client->request('GET', "/surveys/{$id}/result");
+        $response = $this->awajDigitalClient->request('GET', "/surveys/{$id}/result");
 
         /** @var array<string, mixed> $json */
         $json = (array) $response->json();

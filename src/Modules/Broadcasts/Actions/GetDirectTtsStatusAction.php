@@ -11,7 +11,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\Di
 final readonly class GetDirectTtsStatusAction
 {
     public function __construct(
-        private AwajDigitalClient $client,
+        private AwajDigitalClient $awajDigitalClient,
     ) {}
 
     public function execute(string $requestId): DirectTtsStatusData
@@ -20,7 +20,7 @@ final readonly class GetDirectTtsStatusAction
             throw new ClientValidationException('Request ID cannot be empty.');
         }
 
-        $response = $this->client->request('GET', "/broadcasts/direct-tts/{$requestId}/status");
+        $response = $this->awajDigitalClient->request('GET', "/broadcasts/direct-tts/{$requestId}/status");
 
         /** @var array<string, mixed> $json */
         $json = (array) $response->json();

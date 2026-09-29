@@ -29,25 +29,25 @@ final class ExampleFunctionalTest extends TestCase
     public function test_it_resolves_the_manager_as_a_singleton(): void
     {
         // Arrange
-        $firstInstance = $this->app->make(AwajDigital::class);
+        $awajDigital = $this->app->make(AwajDigital::class);
 
         // Act
         $secondInstance = $this->app->make(AwajDigital::class);
 
         // Assert
-        $this->assertInstanceOf(AwajDigital::class, $firstInstance);
-        $this->assertSame($firstInstance, $secondInstance);
+        $this->assertInstanceOf(AwajDigital::class, $awajDigital);
+        $this->assertSame($awajDigital, $secondInstance);
     }
 
     public function test_the_facade_resolves_to_the_same_singleton_instance(): void
     {
         // Arrange
-        $manager = $this->app->make(AwajDigital::class);
+        $awajDigital = $this->app->make(AwajDigital::class);
 
         // Act
         $facadeInstance = AwajDigitalFacade::getFacadeRoot();
 
         // Assert
-        $this->assertSame($manager, $facadeInstance);
+        $this->assertSame($awajDigital, $facadeInstance);
     }
 }

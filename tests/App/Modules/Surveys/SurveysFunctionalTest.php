@@ -20,13 +20,13 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Tests\TestCase;
 
 final class SurveysFunctionalTest extends TestCase
 {
-    private AwajDigitalClient $client;
+    private AwajDigitalClient $awajDigitalClient;
 
     #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
-        $this->client = new AwajDigitalClient([
+        $this->awajDigitalClient = new AwajDigitalClient([
             'token' => 'test-token',
             'default_sender' => '8809612000000',
         ]);
@@ -48,18 +48,18 @@ final class SurveysFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new CreateSurveyAction($this->client, '8809612000000');
+        $action = new CreateSurveyAction($this->awajDigitalClient, '8809612000000');
         $data = new CreateSurveyData(
             templateName: 'customer_satisfaction',
             phoneNumbers: ['01711111111'],
         );
 
         // Act
-        $survey = $action->execute($data);
+        $surveyResultData = $action->execute($data);
 
         // Assert
-        $this->assertSame(201, $survey->id);
-        $this->assertSame('ready', $survey->status);
+        $this->assertSame(201, $surveyResultData->id);
+        $this->assertSame('ready', $surveyResultData->status);
 
         Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://api.awajdigital.com/api/surveys'
@@ -84,7 +84,7 @@ final class SurveysFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new CreateDirectSurveyAction($this->client, '8809612000000');
+        $action = new CreateDirectSurveyAction($this->awajDigitalClient, '8809612000000');
         $data = new CreateDirectSurveyData(
             phoneNumbers: ['01711111111'],
             questionVoices: [
@@ -100,11 +100,11 @@ final class SurveysFunctionalTest extends TestCase
         );
 
         // Act
-        $survey = $action->execute($data);
+        $surveyResultData = $action->execute($data);
 
         // Assert
-        $this->assertSame(202, $survey->id);
-        $this->assertSame('surveying', $survey->status);
+        $this->assertSame(202, $surveyResultData->id);
+        $this->assertSame('surveying', $surveyResultData->status);
 
         Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://api.awajdigital.com/api/v1/surveys/direct-order'
@@ -130,8 +130,8 @@ final class SurveysFunctionalTest extends TestCase
                 ],
             );
             $this->fail('Expected ClientValidationException was not thrown.');
-        } catch (ClientValidationException $e) {
-            $this->assertStringContainsString('Duplicate DTMF option key detected', $e->getMessage());
+        } catch (ClientValidationException $clientValidationException) {
+            $this->assertStringContainsString('Duplicate DTMF option key detected', $clientValidationException->getMessage());
             Http::assertNothingSent();
         }
     }
@@ -165,17 +165,17 @@ final class SurveysFunctionalTest extends TestCase
             ], 200),
         ]);
 
-        $action = new GetSurveyResultAction($this->client);
+        $action = new GetSurveyResultAction($this->awajDigitalClient);
 
         // Act
-        $result = $action->execute(201);
+        $surveyResultData = $action->execute(201);
 
         // Assert
-        $this->assertSame(201, $result->id);
-        $this->assertTrue($result->isComplete);
-        $this->assertSame('completed', $result->status);
-        $this->assertCount(1, $result->numbers);
-        $this->assertSame(['1'], $result->numbers[0]->pressedKeys);
+        $this->assertSame(201, $surveyResultData->id);
+        $this->assertTrue($surveyResultData->isComplete);
+        $this->assertSame('completed', $surveyResultData->status);
+        $this->assertCount(1, $surveyResultData->numbers);
+        $this->assertSame(['1'], $surveyResultData->numbers[0]->pressedKeys);
     }
 
     public function test_survey_webhook_payload_data_can_be_parsed(): void
@@ -195,13 +195,13 @@ final class SurveysFunctionalTest extends TestCase
         ];
 
         // Act
-        $dto = SurveyWebhookPayloadData::fromArray($payload);
+        $surveyWebhookPayloadData = SurveyWebhookPayloadData::fromArray($payload);
 
         // Assert
-        $this->assertSame(201, $dto->surveyId);
-        $this->assertSame(['order_id' => '12345'], $dto->metadata);
-        $this->assertCount(1, $dto->results);
-        $this->assertSame('01711111111', $dto->results[0]['phone_number']);
-        $this->assertSame('1', $dto->results[0]['response']);
+        $this->assertSame(201, $surveyWebhookPayloadData->surveyId);
+        $this->assertSame(['order_id' => '12345'], $surveyWebhookPayloadData->metadata);
+        $this->assertCount(1, $surveyWebhookPayloadData->results);
+        $this->assertSame('01711111111', $surveyWebhookPayloadData->results[0]['phone_number']);
+        $this->assertSame('1', $surveyWebhookPayloadData->results[0]['response']);
     }
 }
