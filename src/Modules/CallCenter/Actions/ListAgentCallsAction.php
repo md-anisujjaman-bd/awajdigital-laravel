@@ -48,7 +48,7 @@ final readonly class ListAgentCallsAction
         $rawData = (array) ($json['data'] ?? []);
 
         $calls = array_map(
-            fn (array $c): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\CallCenter\DataTransferObjects\AgentCallData => AgentCallData::fromArray($c),
+            fn (array $c): AgentCallData => AgentCallData::fromArray($c),
             $rawData
         );
 

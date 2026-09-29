@@ -45,7 +45,7 @@ final readonly class DtmfOptionData
         ];
 
         if ($this->optionType === DtmfOptionType::Voice) {
-            $payload['voices'] = array_map(function (\MdAnisujjamanBd\AwajdigitalLaravel\Modules\Surveys\DataTransferObjects\VoiceEntry|string|array $voice): string|array {
+            $payload['voices'] = array_map(function (VoiceEntry|string|array $voice): string|array {
                 if ($voice instanceof VoiceEntry) {
                     return $voice->toPayload();
                 }

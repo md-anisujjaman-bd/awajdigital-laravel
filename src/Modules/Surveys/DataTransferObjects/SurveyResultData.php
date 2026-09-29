@@ -41,7 +41,7 @@ final readonly class SurveyResultData
         $rawNumbers = (array) ($data['numbers'] ?? []);
 
         $numbers = array_map(
-            fn (array $n): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\Surveys\DataTransferObjects\SurveyNumberResultData => SurveyNumberResultData::fromArray($n),
+            fn (array $n): SurveyNumberResultData => SurveyNumberResultData::fromArray($n),
             $rawNumbers
         );
 

@@ -27,7 +27,7 @@ final readonly class ListSendersAction
         $rawSenders = (array) ($json['senders'] ?? []);
 
         return array_map(
-            fn (array $s): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\Senders\DataTransferObjects\SenderData => SenderData::fromArray($s),
+            fn (array $s): SenderData => SenderData::fromArray($s),
             $rawSenders
         );
     }

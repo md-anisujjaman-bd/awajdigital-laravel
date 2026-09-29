@@ -22,6 +22,7 @@ use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\Actions\SendDirectBroa
 use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\Actions\SendDirectTtsBroadcastAction;
 use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\Actions\SendDynamicBroadcastAction;
 use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\Actions\SendOtpAction;
+use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\BroadcastSummaryData;
 use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\DynamicRecipientData;
 use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\SendBulkBroadcastData;
 use MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\SendDirectBroadcastData;
@@ -122,13 +123,13 @@ final class BroadcastsFunctionalTest extends TestCase
         );
 
         // Act & Assert 400
-        $this->assertThrows(fn (): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\BroadcastSummaryData => $action->execute($data), ValidationFailedException::class);
+        $this->assertThrows(fn (): BroadcastSummaryData => $action->execute($data), ValidationFailedException::class);
 
         // Act & Assert 403
-        $this->assertThrows(fn (): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\BroadcastSummaryData => $action->execute($data), PermissionDeniedException::class);
+        $this->assertThrows(fn (): BroadcastSummaryData => $action->execute($data), PermissionDeniedException::class);
 
         // Act & Assert 409 (Idempotency conflict)
-        $this->assertThrows(fn (): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\BroadcastSummaryData => $action->execute($data), ConflictException::class);
+        $this->assertThrows(fn (): BroadcastSummaryData => $action->execute($data), ConflictException::class);
     }
 
     public function test_send_bulk_broadcast_success(): void

@@ -55,7 +55,7 @@ final readonly class ListBroadcastsAction
         $rawBroadcasts = (array) ($json['broadcasts'] ?? []);
 
         $broadcasts = array_map(
-            fn (array $item): \MdAnisujjamanBd\AwajdigitalLaravel\Modules\Broadcasts\DataTransferObjects\BroadcastSummaryData => BroadcastSummaryData::fromArray($item),
+            fn (array $item): BroadcastSummaryData => BroadcastSummaryData::fromArray($item),
             $rawBroadcasts
         );
 
