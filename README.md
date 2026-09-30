@@ -159,6 +159,9 @@ $status = AwajDigital::getDirectTtsStatus($response['request_id']);
 if ($status->status === 'completed') {
     $broadcastId = $status->broadcastId;
 }
+
+// Or automatically poll until completion (maxAttempts: 10, intervalSeconds: 2)
+$status = AwajDigital::pollDirectTtsStatus($response['request_id']);
 ```
 
 #### List Broadcasts & Results
@@ -171,7 +174,8 @@ $history = AwajDigital::listBroadcasts(
 
 // Get detailed call results and status distribution
 $result = AwajDigital::getBroadcastResult($broadcastId);
-echo "Completed: {$result->completeCount}, Answered: {$result->statusDistribution['answered']}";
+$answered = $result->statusDistribution['answered'] ?? 0;
+echo "Completed: {$result->completeCount}, Answered: {$answered}";
 ```
 
 ---
@@ -210,6 +214,10 @@ $survey = AwajDigital::createDirectSurvey(new CreateDirectSurveyData(
     retryCount: 1,
     webhookUrl: 'https://example.com/api/webhooks/survey-completed',
 ));
+
+// Query survey results and call progress by survey ID
+$result = AwajDigital::getSurveyResult($survey->id);
+echo "Total calls: {$result->totalCount}, Completed: {$result->completeCount}";
 ```
 
 #### Handling Survey Completion Webhook
