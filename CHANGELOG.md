@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/md-anisujjaman-bd/awajdigital-laravel/compare/v0.1.0...v0.1.1) (2026-09-30)
+
+
+### Maintenance
+
+* **deps:** bump the github-actions group across 1 directory with 2 updates ([#1](https://github.com/md-anisujjaman-bd/awajdigital-laravel/issues/1)) ([ae9a1a5](https://github.com/md-anisujjaman-bd/awajdigital-laravel/commit/ae9a1a51e03edcc5c09c0d103f01e0f8a5f0c198))
+
 ## 0.1.0 (2026-09-29)
 
 
